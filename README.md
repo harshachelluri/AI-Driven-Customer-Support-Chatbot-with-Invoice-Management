@@ -83,7 +83,7 @@ Supports multiple chat sessions with history persistence for seamless interactio
 # Login:
 
 Access the app at http://localhost:5000 and select "Login as Customer."
-Enter credentials (e.g., Raju/123).
+Enter credentials.
 System initializes a chat session and processes uploaded invoices.
 
 
@@ -116,7 +116,7 @@ Tickets logged in support_tickets.json and assigned to agents.
 
 # Login:
 
-Select "Login as Agent" and use credentials (e.g., Priya/priya).
+Select "Login as Agent" and use credentials.
 System loads pending tickets and invoice requests.
 
 
