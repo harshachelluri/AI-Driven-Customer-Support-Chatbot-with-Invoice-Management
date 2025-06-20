@@ -1,12 +1,12 @@
 # AI-Driven Customer Support Chatbot with Invoice Management
 
 # Project Overview
-"""
+
 The AI-Driven Customer Support Chatbot with Invoice Management is a Flask-based web application designed to streamline customer support and invoice processing for small to medium-sized businesses. This project combines a conversational AI chatbot for handling customer queries with robust invoice management features, including data extraction, approval workflows, and real-time tracking. It leverages OCR (Tesseract), Google's Gemini AI, and a Hugging Face model to extract structured data from invoices (PDFs, images, CSVs) and supports role-based access for customers, support agents, and managers. The system addresses real-world business needs for efficient customer service and invoice handling, ensuring transparency, scalability, and compliance.
-"""
+
 
 # Business Case
-"""
+
 The chatbot addresses challenges in customer support and invoice processing, such as delayed query resolution, manual invoice handling, and lack of centralized tracking. Key benefits include:
 
 - Efficiency: Automates customer query resolution and invoice data extraction, reducing manual effort and errors.
