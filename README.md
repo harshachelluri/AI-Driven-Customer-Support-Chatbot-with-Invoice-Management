@@ -78,12 +78,6 @@ Stores invoices in user-specific directories with metadata for efficient process
 
 Supports multiple chat sessions with history persistence for seamless interactions.
 
-
-# Steps and Flows
-
-# The system provides streamlined workflows for customers, support agents, and managers, with predefined credentials for testing:
-# Customer (Raju, password: 123), Agent (Priya, password: priya), Manager (Divya, password: divya)
-
 # Customer Workflow
 
 # Login:
@@ -242,19 +236,19 @@ preprocess.py processes files, updating pdf_metadata.json and all_invoices.json.
 Run manually: python preprocess.py <username>.
 
 
-# Project Structure
-customer-support-invoice-chatbot/
-├── app.py                   # Main Flask application
-├── preprocess.py            # Script to process uploaded files
-├── templates/               # HTML templates
-│   ├── index.html           # Landing page
-│   ├── login.html           # Login page
-│   ├── chat.html            # Chat interface
-├── Uploads/                 # Directory for uploaded invoices
-├── pdf_metadata.json        # Metadata for processed files
-├── all_invoices.json        # Consolidated invoice data
-├── approval_requests.json   # Approval request tracking
-├── support_tickets.json     # Customer support tickets
-├── requirements.txt         # Python dependencies
-├── .env                     # Environment variables
-└── README.md                # Project documentation
+# Project Structure    
+customer-support-invoice-chatbot/    
+├── app.py                     # Main Flask application      
+├── preprocess.py              # Script to process uploaded files    
+├── templates/                 # HTML templates    
+│   ├── index.html             # Landing page    
+│   ├── login.html             # Login page    
+│   ├── chat.html              # Chat interface    
+├── Uploads/                   # Directory for uploaded invoices    
+├── pdf_metadata.json          # Metadata for processed files    
+├── all_invoices.json          # Consolidated invoice data    
+├── approval_requests.json     # Approval request tracking    
+├── support_tickets.json       # Customer support tickets    
+├── requirements.txt           # Python dependencies    
+├── .env                       # Environment variables    
+└── README.md                  # Project documentation    
