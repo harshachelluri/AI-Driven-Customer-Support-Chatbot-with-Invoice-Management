@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Chatbot - {{ username }}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            width: 250px;
+            background: #2e2e2e;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #444;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 1.5em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .sidebar h3 {
+            font-size: 1.2em;
+            color: #b0b0b0;
+            margin: 15px 0 10px;
+        }
+        .chat-item {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            background: #3a3a3a;
+            transition: background 0.2s;
+        }
+        .chat-item:hover {
+            background: #454545;
+        }
+        .chat-item.active-chat {
+            background: #4CAF50;
+            color: #fff;
+        }
+        .chat-item .session-label {
+            font-size: 0.9em;
+            font-weight: medium;
+        }
+        .chat-item .session-id {
+            font-size: 0.8em;
+            color: #b0b0b0;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+        .dropdown select {
+            width: 200px;
+            padding: 10px;
+            background: #3a3a3a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .due-dates ul,
+        .approval-status ul,
+        .pending-requests ul {
+            list-style: none;
+            padding: 0;
+        }
+        .due-dates li,
+        .approval-status li,
+        .pending-requests li {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        .due-dates .overdue {
+            background: #f44336;
+        }
+        .due-dates .not-overdue {
+            background: #4CAF50;
+        }
+        .approval-status .approved {
+            background: #4CAF50;
+        }
+        .approval-status .pending {
+            background: #ffeb3b;
+            color: #000;
+        }
+        .approval-status .rejected {
+            background: #f44336;
+        }
+        .pending-requests .pending {
+            background: #3a3a3a;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .approve-btn {
+            background: #4CAF50;
+            color: #fff;
+        }
+        .reject-btn {
+            background: #f44336;
+            color: #fff;
+        }
+        .approve-btn:hover {
+            background: #45a049;
+        }
+        .reject-btn:hover {
+            background: #d32f2f;
+        }
+        .logout-btn,
+        .new-chat-btn {
+            background: #2196F3;
+            color: #fff;
+        }
+        .logout-btn:hover,
+        .new-chat-btn:hover {
+            background: #1e88e5;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        .chat-header h1 {
+            font-size: 1.8em;
+            color: #4CAF50;
+        }
+        .right-row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #252525;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: #4CAF50;
+            color: #fff;
+            margin-left: auto;
+        }
+        .bot-message {
+            background: #3a3a3a;
+            color: #e0e0e0;
+        }
+        .message-meta {
+            font-size: 0.8em;
+            color: #b0b0b0;
+            margin-top: 5px;
+        }
+        .invoice-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+        .invoice-pdf {
+            width: 100%;
+            height: 400px;
+            margin-top: 10px;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+        .pdf-fallback {
+            margin-top: 10px;
+            color: #4CAF50;
+            text-decoration: underline;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #2e2e2e;
+            border-radius: 8px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #444;
+            border-radius: 8px 0 0 8px;
+            background: #3a3a3a;
+            color: #e0e0e0;
+        }
+        .chat-input button {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            background: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background: #45a049;
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            showLoading();
+            addMessage(question, 'user');
+            input.value = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    addMessage(data.answer, 'bot', data.image_data);
+                    updateChatHistory(data.chat_history);
+                } else {
+                    addMessage(data.message, 'bot');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error communicating with server.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function addMessage(text, type, imageData = null) {
+            const messages = document.getElementById('chat-messages');
+            const message = document.createElement('div');
+            message.className = `message ${type === 'user' ? 'user-message' : 'bot-message'}`;
+            let content = `<div>${text.replace(/\n/g, '<br>')}</div>`;
+            
+            if (imageData && imageData.image_url && imageData.filename) {
+                const ext = imageData.filename.split('.').pop().toLowerCase();
+                if (['png', 'jpg', 'jpeg'].includes(ext)) {
+                    content += `<img src="${imageData.image_url}" class="invoice-image" alt="Invoice ${imageData.invoice_number}" onerror="console.error('Failed to load image: ${imageData.image_url}')"/>`;
+                } else if (ext === 'pdf') {
+                    content += `
+                        <object data="${imageData.image_url}" type="application/pdf" class="invoice-pdf" title="Invoice ${imageData.invoice_number}">
+                            <p class="pdf-fallback">PDF cannot be displayed. <a href="${imageData.image_url}" target="_blank">Download PDF</a></p>
+                        </object>
+                    `;
+                }
+            }
+            
+            message.innerHTML = `${content}<div class="message-meta">${new Date().toLocaleString()}</div>`;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function updateChatHistory(history) {
+            const messages = document.getElementById('chat-messages');
+            messages.innerHTML = '';
+            history.forEach(msg => {
+                if (msg.question) addMessage(msg.question, 'user');
+                addMessage(msg.answer, 'bot', msg.image_data);
+            });
+        }
+
+        function requestApproval() {
+            const invoiceSelect = document.getElementById('invoice-select-header');
+            const invoiceId = invoiceSelect.value;
+            if (!invoiceId) {
+                addMessage('Please select an invoice to request approval.', 'bot');
+                return;
+            }
+
+            showLoading();
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: `Request approval for ${invoiceId}` })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    addMessage(data.answer, 'bot');
+                    updateChatHistory(data.chat_history);
+                } else {
+                    addMessage(data.message, 'bot');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error communicating with server.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function handleApproval(invoiceId, user, action) {
+            showLoading();
+            fetch(`/${action}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invoice_id: invoiceId, user })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                addMessage(data.message, 'bot');
+                if (data.success) location.reload();
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error communicating with server.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function newChat() {
+            showLoading();
+            fetch('/new_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    document.getElementById('chat-messages').innerHTML = '';
+                    location.reload();
+                } else {
+                    addMessage(data.message, 'bot');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error communicating with server.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function switchChat(sessionId) {
+            showLoading();
+            fetch(`/switch_chat/${sessionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) location.reload();
+                else addMessage(data.message, 'bot');
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error communicating with server.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function logout() {
+            showLoading();
+            fetch('/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) window.location.href = '/';
+            })
+            .catch(error => {
+                hideLoading();
+                addMessage(data.message || 'Error logging out.', 'bot');
+                console.error('Error:', error);
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.getElementById('chat-messages');
+            messages.scrollTop = messages.scrollHeight;
+        });
+    </script>
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>{{ username }}'s Dashboard</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h3>Chats</h3>
+                <button class="action-btn new-chat-btn" onclick="newChat()">New Chat</button>
+            </div>
+            <div class="flex-grow overflow-y-auto">
+                {% for session_id, messages in chat_history.items() %}
+                    <div class="chat-item p-3 rounded-lg mb-2 {% if session_id == current_session_id %}active-chat{% endif %}" onclick="switchChat('{{ session_id }}')">
+                        <div class="session-label truncate">Session {{ loop.index }} ({{ messages[0].timestamp[:10] if messages else 'Today' }})</div>
+                        <div class="session-id">{{ session_id[:8] }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if role == 'manager' %}
+            <div class="pending-requests">
+                <h3>Pending Approvals</h3>
+                <ul>
+                    {% for req in pending_requests %}
+                    <li class="pending">
+                        User: {{ req.user }}<br>
+                        Invoice ID: {{ req.invoice_id }}<br>
+                        Amount: ₹{{ req.total|float|round(2) }}<br>
+                        Date Raised: {{ req.timestamp[:10] }}<br>
+                        <button class="action-btn approve-btn" onclick="handleApproval('{{ req.invoice_id }}', '{{ req.user }}', 'approve')">Approve</button>
+                        <button class="action-btn reject-btn" onclick="handleApproval('{{ req.invoice_id }}', '{{ req.user }}', 'reject')">Reject</button>
+                    </li>
+                    {% endfor %}
+                    {% if not pending_requests %}
+                    <li>No pending approvals.</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+            <button class="action-btn logout-btn" onclick="logout()">Logout</button>
+        </div>
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>{{ greeting_message }}</h1>
+                <div class="right-row">
+                    {% if role == 'user' %}
+                    <div class="dropdown">
+                        <select id="invoice-select-header" onchange="document.getElementById('invoice-select').value = this.value">
+                            <option value="">Select Invoice</option>
+                            {% for invoice in invoice_list %}
+                            <option value="{{ invoice }}">{{ invoice }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="dropdown">
+                        <select id="due-dates-header">
+                            <option value="">Due Dates</option>
+                            {% for item in due_dates %}
+                            <option value="{{ item.invoice }}">{{ item.invoice }}: {{ item.date }} {% if item.overdue %}(Overdue){% else %}({{ item.days_remaining }} days remaining){% endif %}</option>
+                            {% endfor %}
+                            {% if not due_dates %}
+                            <option value="">No due dates available.</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="dropdown">
+                        <select id="approval-status-header">
+                            <option value="">Approval Status</option>
+                            {% for req in approval_requests %}
+                            <option value="{{ req.invoice_id }}">{{ req.invoice_id }}: {{ req.status|capitalize }} {% if req.status != 'pending' %}by {{ req.manager }} on {{ req.timestamp[:10] }}{% else %}(Raised to {{ req.manager }} on {{ req.timestamp[:10] }}){% endif %}</option>
+                            {% endfor %}
+                            {% if not approval_requests %}
+                            <option value="">No approval requests.</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                {% for message in current_chat %}
+                {% if message.question %}
+                    <div class="message user-message">
+                        <div>{{ message.question }}</div>
+                        <div class="message-meta">{{ message.timestamp }}</div>
+                    </div>
+                {% endif %}
+                <div class="message bot-message">
+                    <div>{{ message.answer|replace('\n', '<br>') }}</div>
+                    {% if message.image_data and message.image_data.filename %}
+                        {% set ext = message.image_data.filename.split('.')[-1]|lower %}
+                        {% if ext in ['png', 'jpg', 'jpeg'] %}
+                            <img src="{{ message.image_data.image_url }}" class="invoice-image" alt="Invoice {{ message.image_data.invoice_number }}" onerror="console.error('Failed to load image: {{ message.image_data.image_url }}')"/>
+                        {% elif ext == 'pdf' %}
+                            <object data="{{ message.image_data.image_url }}" type="application/pdf" class="invoice-pdf" title="Invoice {{ message.image_data.invoice_number }}">
+                                <p class="pdf-fallback">PDF cannot be displayed. <a href="{{ message.image_data.image_url }}" target="_blank">Download PDF</a></p>
+                            </object>
+                        {% endif %}
+                    {% endif %}
+                    <div class="message-meta">{{ message.timestamp }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask about your invoices..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
