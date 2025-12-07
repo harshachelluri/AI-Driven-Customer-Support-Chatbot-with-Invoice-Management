@@ -20,6 +20,7 @@ import fitz  # PyMuPDF
 import google.generativeai as genai
 from dotenv import load_dotenv
 
+
 # Setup logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -1258,4 +1259,5 @@ def switch_chat(session_id):
         return jsonify({"success": False, "message": "An unexpected error occurred. Please try again later."}), 500
 
 if __name__ == '__main__':
+
     app.run(debug=True, host='0.0.0.0', port=5000)
